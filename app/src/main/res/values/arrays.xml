@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="colors">
+
+        <item name="black" type="Int">@color/black</item>
+        <item name="white" type="Int">@color/white</item>
+        <item name="red" type="Int">@color/red</item>
+        <item name="blue" type="Int">@color/blue</item>
+        <item name="green" type="Int">@color/green</item>
+        <item name="yellow" type="Int">@color/yellow</item>
+        <item name="orange" type="Int">@color/orange</item>
+        <item name="purple" type="Int">@color/purple</item>
+        <item name="brown" type="Int">@color/brown</item>
+        <item name="pink" type="Int">@color/pink</item>
+        <item name="maroon" type="Int">@color/maroon</item>
+
+    </string-array>
+</resources>

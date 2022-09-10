@@ -4,10 +4,14 @@ import android.app.Dialog
 import android.os.Bundle
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity() {
     private var drawingView: DrawingView? = null
     private var brushSize: ImageButton? = null
+
+    private var recyclerView: RecyclerView? = null
+    private var colorAdapter: ColorsSelectorAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
@@ -20,9 +24,26 @@ class MainActivity : AppCompatActivity() {
             showBrushSizeChooserDialog()
         }
 
+        setupRecyclerView()
+
 
     }
 
+
+    private fun setupRecyclerView() {
+        recyclerView = findViewById(R.id.rv_colors)
+        colorAdapter = ColorsSelectorAdapter()
+        recyclerView?.adapter = colorAdapter
+
+        recyclerView?.setHasFixedSize(true)
+        val colors = resources.getIntArray(R.array.colors)
+        colorAdapter?.setColors(colors.toList())
+
+        colorAdapter?.setOnColorSelectedListener {
+            drawingView?.setColor(it)
+        }
+
+    }
 
     private fun showBrushSizeChooserDialog() {
         val brushDialog = Dialog(this)
