@@ -1,17 +1,34 @@
 package com.example.drawingappcourseandroid12
 
+import android.Manifest
 import android.app.Dialog
+import android.os.Build
 import android.os.Bundle
 import android.widget.ImageButton
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity() {
     private var drawingView: DrawingView? = null
     private var brushSize: ImageButton? = null
+    private var imageButton: ImageButton? = null
 
     private var recyclerView: RecyclerView? = null
     private var colorAdapter: ColorsSelectorAdapter? = null
+
+    private val cameraResultLauncher: ActivityResultLauncher<String> =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main2)
@@ -22,6 +39,15 @@ class MainActivity : AppCompatActivity() {
 
         brushSize?.setOnClickListener {
             showBrushSizeChooserDialog()
+        }
+
+        imageButton?.setOnClickListener {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && shouldShowRequestPermissionRationale(
+                    Manifest.permission.CAMERA
+                )
+            ) {
+
+            }
         }
 
         setupRecyclerView()
