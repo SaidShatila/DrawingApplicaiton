@@ -16,6 +16,7 @@ class DrawingView(context: Context, attributeSet: AttributeSet) : View(context, 
     private var color = Color.BLACK
     private var canvas: Canvas? = null
     private val mPaths = ArrayList<CustomPath>()
+//    private val mPathsDummy = ArrayList<CustomPath>()
 
 
     init {
@@ -95,6 +96,35 @@ class DrawingView(context: Context, attributeSet: AttributeSet) : View(context, 
 
     }
 
+    fun redo() {
+        if (mPaths.size > 0) {
+/*
+            mPaths.add(mPathsDummy[0])
+*/
+/*
+            mPathsDummy.removeAt(mPathsDummy.size - 1)
+*/
+            invalidate()
+        }
+    }
+
+
+
+    fun undo() {
+        if (mPaths.size > 0) {
+/*
+            mPathsDummy.add(mPaths[mPaths.size - 1])
+*/
+            mPaths.removeAt(mPaths.size - 1)
+            invalidate()
+        }
+    }
+
+    fun clear() {
+        mPaths.clear()
+        invalidate()
+    }
+
     fun setSizeForBrush(newSize: Float) {
         mBrushSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
@@ -107,7 +137,6 @@ class DrawingView(context: Context, attributeSet: AttributeSet) : View(context, 
     fun setColor(it: Int) {
         color = it
     }
-
 
 
     internal inner class CustomPath(var color: Int, var brushThickness: Float) : Path() {
