@@ -17,7 +17,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
     private var drawingView: DrawingView? = null
@@ -29,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private var imageButtonRedo: ImageButton? = null
     private var imageButtonSave: ImageButton? = null
 
+    var customProgressBarDialog: Dialog? = null
     private var recyclerView: RecyclerView? = null
     private var colorAdapter: ColorsSelectorAdapter? = null
 
@@ -124,7 +132,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         imageButtonSave?.setOnClickListener {
-//            drawingView?.
+            if (isReadStorageAllowed()) {
+                lifecycleScope.launch {
+
+                    showCustomProgressDialog()
+
+                    val bitmap = withContext(Dispatchers.Default) {
+                        getBitmapView()
+                    }
+                    saveBitmapFile(bitmap)
+                }
+
+            }
+
+
         }
         setupRecyclerView()
 
@@ -154,6 +175,50 @@ class MainActivity : AppCompatActivity() {
         }
         drawingView?.draw(canvas)
         return bitmap
+    }
+
+    private suspend fun saveBitmapFile(bitmap: Bitmap): String {
+        var result = ""
+        withContext(Dispatchers.IO) {
+            if (bitmap != null) {
+                try {
+                    val bytes = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, bytes)
+                    val file = File(
+                        externalCacheDir?.absoluteFile.toString() + File.separator + "DrawingApp"
+                                + System.currentTimeMillis() / 1000 + ".png"
+                    )
+
+                    val fileOutputStream = FileOutputStream(file)
+                    fileOutputStream.write(bytes.toByteArray())
+                    fileOutputStream.close()
+                    result = file.absolutePath
+
+                    runOnUiThread {
+                        cancelCustomProgressDialog()
+                        if (result.isNotEmpty()) {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "File Saved Successfully $result",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                this@MainActivity,
+                                "Something went wrong while saving the file.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    result = " "
+                    e.printStackTrace()
+                }
+            }
+
+        }
+        return result
     }
 
     private fun requestStoragePermission() {
@@ -239,11 +304,18 @@ class MainActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun customProgressDialog() {
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.custom_progress_dialog)
+    private fun showCustomProgressDialog() {
+        customProgressBarDialog = Dialog(this)
+        customProgressBarDialog?.setContentView(R.layout.custom_progress_dialog)
         //set to true to cancel dialog on outside touch
-        dialog.setCancelable(false)
-        dialog.show()
+        customProgressBarDialog?.setCancelable(false)
+        customProgressBarDialog?.show()
+    }
+
+    private fun cancelCustomProgressDialog() {
+        if (customProgressBarDialog != null) {
+            customProgressBarDialog?.dismiss()
+            customProgressBarDialog = null
+        }
     }
 }
