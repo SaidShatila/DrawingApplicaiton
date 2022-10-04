@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Bundle
 import android.widget.ImageButton
@@ -35,11 +36,13 @@ class MainActivity : AppCompatActivity() {
     private var imageButtonUndo: ImageButton? = null
     private var imageButtonRedo: ImageButton? = null
     private var imageButtonSave: ImageButton? = null
+    private var imageButtonShare: ImageButton? = null
 
     var customProgressBarDialog: Dialog? = null
     private var recyclerView: RecyclerView? = null
     private var colorAdapter: ColorsSelectorAdapter? = null
 
+    var imagePath: String? = null
     private val cameraResultLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
 
@@ -92,6 +95,7 @@ class MainActivity : AppCompatActivity() {
         imageButtonUndo = findViewById(R.id.ib_undo)
         imageButtonRedo = findViewById(R.id.ib_redo)
         imageButtonSave = findViewById(R.id.ib_save)
+        imageButtonShare = findViewById(R.id.ib_share)
         drawingView?.setSizeForBrush(20.toFloat())
 
         brushSize = findViewById(R.id.ib_brush)
@@ -146,6 +150,16 @@ class MainActivity : AppCompatActivity() {
             }
 
 
+        }
+        imageButtonShare?.setOnClickListener {
+            if (isReadStorageAllowed() && imagePath != null) {
+                lifecycleScope.launch {
+                    imagePath?.let { it1 -> shareImage(it1) }
+                }
+
+            } else {
+                Toast.makeText(this, "Please save the image first", Toast.LENGTH_SHORT).show()
+            }
         }
         setupRecyclerView()
 
@@ -202,6 +216,7 @@ class MainActivity : AppCompatActivity() {
                                 "File Saved Successfully $result",
                                 Toast.LENGTH_SHORT
                             ).show()
+                            imagePath = result
                         } else {
                             Toast.makeText(
                                 this@MainActivity,
@@ -316,6 +331,16 @@ class MainActivity : AppCompatActivity() {
         if (customProgressBarDialog != null) {
             customProgressBarDialog?.dismiss()
             customProgressBarDialog = null
+        }
+    }
+
+    private fun shareImage(result: String) {
+        MediaScannerConnection.scanFile(this, arrayOf(result), null) { path, uri ->
+            val shareIntent = Intent()
+            shareIntent.action = Intent.ACTION_SEND
+            shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
+            shareIntent.type = "image/png"
+            startActivity(Intent.createChooser(shareIntent, "Share"))
         }
     }
 }

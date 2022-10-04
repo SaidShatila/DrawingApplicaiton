@@ -125,4 +125,17 @@
         app:layout_constraintBottom_toBottomOf="@id/ib_brush"
         app:layout_constraintStart_toEndOf="@id/ib_undo"
         app:layout_constraintTop_toTopOf="@id/ib_brush" />
+
+    <ImageButton
+        android:id="@+id/ib_share"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:background="@null"
+        android:padding="10dp"
+        android:src="@drawable/ic_baseline_share_24"
+        app:layout_constraintBottom_toBottomOf="@id/ib_brush"
+        app:layout_constraintEnd_toStartOf="@id/ib_image_pick"
+        app:layout_constraintTop_toTopOf="@id/ib_brush" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
